@@ -1,38 +1,25 @@
 import express from 'express';
-import knex from './database/connection';
+
+import SchedulesController from './controllers/SchedulesController'
+import UsersController from './controllers/UsersController'
 
 const routes  = express.Router();
+const schedulesController = new SchedulesController();
+const usersController = new UsersController();
+
 
 routes.get('/', (req, res) => {
   return res.json({message: 'Home'})
 })
 
-// 
-routes.get('/users', async (req, res) => {
-  const users = await knex('users').select('*');
-  const serializedUsers = users.map((user) => {
-    const name = `${user.firstName} ${user.lastName}`;
-    return {
-      id: user.id,
-      name,
-      email: user.email,
-      password: user.password,
-    }
-  })
-  return res.json(serializedUsers);
-});
+routes.post('/users', usersController.create);
+routes.get('/users', usersController.index);
 
-routes.post('/users', async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-  const user = await knex('users').insert({
-    firstName,
-    lastName,
-    email,
-    password,
-  })
-
-  return res.json({message: 'Success'})
-});
+routes.post('/schedules', schedulesController.create)
+routes.get('/schedules', schedulesController.index)
+routes.get('/schedules/:id', schedulesController.show)
+routes.put('/schedules/:id', schedulesController.update)
+routes.delete('/schedules/:id', schedulesController.delete)
 
 
 
