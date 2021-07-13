@@ -3,7 +3,10 @@ import { Knex } from 'knex';
 export async function up(knex: Knex) {
   return knex.schema.createTable('schedules', table => {
     table.increments('id').primary;
-    table.dateTime('date').notNullable();
+    table.date('date').notNullable();
+    table.time('time').notNullable();
+    table.string('title').notNullable();
+    table.string('description')
     table
       .enu('status', ['open', 'concluded', 'canceled'])
       .notNullable()
@@ -11,7 +14,6 @@ export async function up(knex: Knex) {
     table
       .integer('user_id')
       .unsigned()
-      .index()
       .references('id')
       .inTable('users')
       .onDelete('SET NULL');

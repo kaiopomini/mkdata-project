@@ -1,38 +1,31 @@
 import express from 'express';
-import knex from './database/connection';
+
+import SchedulesController from './controllers/SchedulesController'
+import UsersController from './controllers/UsersController'
+import TokensController from './controllers/TokensController'
+
+import loginRequired from './middlewares/loginRequired';
 
 const routes  = express.Router();
+const schedulesController = new SchedulesController();
+const usersController = new UsersController();
+const tokensController = new TokensController();
+
 
 routes.get('/', (req, res) => {
   return res.json({message: 'Home'})
 })
 
-// 
-routes.get('/users', async (req, res) => {
-  const users = await knex('users').select('*');
-  const serializedUsers = users.map((user) => {
-    const name = `${user.firstName} ${user.lastName}`;
-    return {
-      id: user.id,
-      name,
-      email: user.email,
-      password: user.password,
-    }
-  })
-  return res.json(serializedUsers);
-});
+routes.post('/tokens', tokensController.store);
 
-routes.post('/users', async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-  const user = await knex('users').insert({
-    firstName,
-    lastName,
-    email,
-    password,
-  })
+routes.post('/users', usersController.create);
+routes.get('/users/me', loginRequired, usersController.index);
 
-  return res.json({message: 'Success'})
-});
+routes.post('/schedules', loginRequired, schedulesController.create)
+routes.get('/schedules', loginRequired, schedulesController.index)
+routes.get('/schedules/:id', loginRequired, schedulesController.show)
+routes.put('/schedules/:id', loginRequired, schedulesController.update)
+routes.delete('/schedules/:id', loginRequired, schedulesController.delete)
 
 
 
