@@ -14,7 +14,6 @@ export async function up(knex: Knex) {
     table
       .integer('user_id')
       .unsigned()
-      .index()
       .references('id')
       .inTable('users')
       .onDelete('SET NULL');

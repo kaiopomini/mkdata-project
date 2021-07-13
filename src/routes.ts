@@ -19,7 +19,7 @@ routes.get('/', (req, res) => {
 routes.post('/tokens', tokensController.store);
 
 routes.post('/users', usersController.create);
-routes.get('/users', usersController.index);
+routes.get('/users/me', loginRequired, usersController.index);
 
 routes.post('/schedules', loginRequired, schedulesController.create)
 routes.get('/schedules', loginRequired, schedulesController.index)

@@ -6,6 +6,7 @@ class SchedulesController {
 
     const { date, time, title, description } = req.body;
     const { userId } = req
+    
     if (!(date && time && title)) {
       return res.status(400).json({ errors: ['Preencha todos os campos'] })
     }
@@ -14,16 +15,18 @@ class SchedulesController {
       description,
       date,
       time,
-      user_id : userId,
+      user_id: userId,
       status: 'open'
     }
     try {
       const idCreated = await knex('schedules').insert(schedule);
+      
       return res.json({
         id: idCreated[0],
         ...schedule
       })
     } catch (error) {
+      
       return res.status(400).json({ errors: ['não foi possivel agendar'] })
     }
 
@@ -32,14 +35,17 @@ class SchedulesController {
   async index(req: Request, res: Response) {
     const { date } = req.query;
     const { userId } = req
-   
+    
+
     if (date) {
       try {
+        
         const schedules = await knex('schedules')
           .where('user_id', userId)
           .andWhere('date', String(date))
           .select('*')
-          .orderBy('time');
+          .orderBy('date', 'asc')
+          .orderBy('time', 'asc');
         const serializedSchedules = schedules.map(schedule => {
           return {
             id: schedule.id,
@@ -60,7 +66,8 @@ class SchedulesController {
       const schedules = await knex('schedules')
         .where('user_id', userId)
         .select('*')
-        .orderBy('time');
+        .orderBy('date', 'asc')
+        .orderBy('time', 'asc');
       const serializedSchedules = schedules.map(schedule => {
         return {
           id: schedule.id,
@@ -81,8 +88,9 @@ class SchedulesController {
 
   async show(req: Request, res: Response) {
     try {
+      const { userId } = req;
       const { id } = req.params;
-      const schedule = await knex('schedules').where('id', id).first();
+      const schedule = await knex('schedules').where('id', id).andWhere('user_id', userId).first();
 
       if (!schedule) {
         return res.status(400).json({ message: 'Agendamento não encontrado' });
@@ -96,10 +104,12 @@ class SchedulesController {
   }
 
   async update(req: Request, res: Response) {
-    const { id } = req.params;
-    const { date, time, title, description, status } = req.body;
-    
     try {
+    
+    const { id } = req.params;
+    const { userId } = req
+    const { date, time, title, description, status } = req.body;
+
       const alteredSchedule = {
         status,
         date,
@@ -107,7 +117,7 @@ class SchedulesController {
         title,
         description
       }
-      await knex('schedules').where('id', id).update(alteredSchedule);
+      await knex('schedules').where('id', id).andWhere('user_id', userId).update(alteredSchedule);
       return res.json({
         id,
         ...alteredSchedule
@@ -115,13 +125,13 @@ class SchedulesController {
     } catch (error) {
       return res.status(400).json({ errors: ['Não foi possivel alterar os dados'] })
     }
-    
-
   }
+  
   async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await knex('schedules').where('id', id).delete()
+      const { userId } = req;
+      await knex('schedules').where('id', id).andWhere('user_id', userId).delete()
 
       return res.json({ message: 'success' })
     } catch (error) {
