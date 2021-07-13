@@ -68,7 +68,16 @@
 
     /* Advanced Options */
     "skipLibCheck": true,                           /* Skip type checking of declaration files. */
-    "forceConsistentCasingInFileNames": true,        /* Disallow inconsistently-cased references to the same file. */
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",        /* Disallow inconsistently-cased references to the same file. */
     "typeRoots": ["./types"]
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "**.*.spec.ts",
+    "**.*.test.ts",
+  ],
+  
 }
